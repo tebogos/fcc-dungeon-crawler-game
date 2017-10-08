@@ -105,6 +105,7 @@ const pickupFood=(x,y)=>{
   const updateWalls =self.props.updateWalls;
   const updateArmor=self.props.updateArmor;
   const updateEnemy=self.props.updateEnemy;
+  const updateFood=self.props.updateFood;
 
 
   const UP = 38;
