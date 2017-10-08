@@ -177,15 +177,15 @@ if(keynum === DOWN) {
     // document.getElementById('game-board').style.top=document.getElementById('game-board').style.top-32;
     // move({x:youX,y:youY});
     if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-    let newWall =self.moveWalls(walls,"DOWN");
+    let newWall =self.moveEntity(walls,"DOWN");
     updateWalls(newWall);
   }
   if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-  let newArmor =self.moveArmor(armor,"DOWN");
+  let newArmor =self.moveEntity(armor,"DOWN");
   updateArmor(newArmor);
 }
 if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-let newEnemy =self.moveEnemy(enemies,"DOWN");
+let newEnemy =self.moveEntity(enemies,"DOWN");
 updateEnemy(newEnemy);
 }
 if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
@@ -323,80 +323,7 @@ else{
 });
 }
 
-moveWalls(walls,direction){
-  if(direction==="UP"){
-return  walls.map(wall=>{
-const x=  this.xySplit(wall).x;
-const y= parseInt(this.xySplit(wall).y)+32;
-const xy=x.toString()+"_"+y.toString();
-return xy;
-});
-}
-else if(direction==="DOWN"){
-  return  walls.map(wall=>{
-  const x=  this.xySplit(wall).x;
-  const y= parseInt(this.xySplit(wall).y)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="LEFT"){
-
-  return  walls.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)+32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="RIGHT"){
-
-  return  walls.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-}
-
-moveArmor(armor,direction){
-  if(direction==="UP"){
-return  armor.map(wall=>{
-const x=  this.xySplit(wall).x;
-const y= parseInt(this.xySplit(wall).y)+32;
-const xy=x.toString()+"_"+y.toString();
-return xy;
-});
-}
-else if(direction==="DOWN"){
-  return  armor.map(wall=>{
-  const x=  this.xySplit(wall).x;
-  const y= parseInt(this.xySplit(wall).y)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="LEFT"){
-
-  return  armor.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)+32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="RIGHT"){
-
-  return  armor.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-}
-
+ // move entity position
 moveEnemy(enemy,direction){
   if(direction==="UP"){
 return  enemy.map(wall=>{
