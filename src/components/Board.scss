@@ -1,0 +1,58 @@
+
+#you{
+  background:rgba(200,100,0,0.5);
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top:0px;
+  left: 0px;
+}
+.enemy{
+  background: red;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top:0px;
+  left: 0px;
+}
+.armor{
+  background: #222222;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top:0px;
+  left: 0px;
+
+}
+
+span{
+  z-index: 2;
+}
+.food{
+  background: #228822;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top:0px;
+  left: 0px;
+
+}
+
+.wall{
+  background: blue;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  top:0px;
+  // left: 0px;
+}
+
+.game-board{
+  border: solid #222;
+  border-width: 30px;
+  margin:40px;
+  min-width: 500px;
+  min-height: 300px;
+  position: relative;
+  overflow:hidden;
+}
