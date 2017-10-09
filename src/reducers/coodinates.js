@@ -16,7 +16,7 @@ const UPDATE_ARMOR='UPDATE_ARMOR';
 const UPDATE_ENEMY='UPDATE_ENEMY';
 const UPDATE_FOOD='UPDATE_FOOD';
 
-
+// Redux Action creator decleration
 export const moveYourPosition=(coodinates)=>({type:MOVE_YOUR_POSITION,payload:{x:coodinates.x,y:coodinates.y}});
 export const moveEnemyPosition=(newEnemiesCo)=>({type:MOVE_ENEMY_POSITION,payload:newEnemiesCo});
 export const pickArmor=(id)=>({type:PICK_ARMOR,id:id});

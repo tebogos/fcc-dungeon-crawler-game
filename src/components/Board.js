@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {moveYourPosition,moveEnemyPosition,pickArmor,pickFood,moveUp,moveDown,moveLeft,moveRight,updateWalls,updateArmor,updateEnemy,updateFood} from '../reducers/coodinates';
 import {updateHealth,damageByEnemy,getArmorPoints,getFoodPoints,getWeapon,useArmor} from '../reducers/score';
 import './Board.scss';
-import {BOARD_WIDTH,BOARD_HEIGHT} from '../reducers/init';
+import {BOARD_WIDTH,BOARD_HEIGHT,YOUR_INIT_POIN} from '../reducers/init';
 
 class Board extends Component {
 
@@ -76,7 +76,7 @@ const pickupFood=(x,y)=>{
 
 
 
-
+// Initializing variables and object
  const self=this;
   document.addEventListener("keydown", function(event) {
   console.log(event.which);
@@ -119,7 +119,7 @@ if(keynum === UP) {
   //  let tempY=youY;
   //  youY=(youY-32)>0?youY-32:0;
 
-   if(!checkBoundry(0,-32)){
+   if(!checkBoundry(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y-32)){
       // move({x:youX,y:youY});
   if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
        let newWall =self.moveEntity(walls,"UP");
@@ -141,7 +141,7 @@ if(keynum === UP) {
 
 
       moveUp();
-      if(enemyAttack(0,-32)){
+      if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
          if(self.props.armorPoints>=1){
            useArmor();
          }
@@ -151,11 +151,11 @@ if(keynum === UP) {
        updateHealth();
      }
        }
-      if(pickupArmor(0,-32)){
+      if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
         getArmorPoints();
          updateHealth();
        }
-      if(pickupFood(0,-32)){
+      if(pickupFood(YOUR_INIT_POIN,YOUR_INIT_POIN.y)){
          getFoodPoints();
          updateHealth();
       }
@@ -172,7 +172,7 @@ if(keynum === DOWN) {
   // youY=youY+32>BOARD_HEIGHT?BOARD_HEIGHT:youY+32;
 
 
-  if(!checkBoundry(0,32)){
+  if(!checkBoundry(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y+32)){
 
     // document.getElementById('game-board').style.top=document.getElementById('game-board').style.top-32;
     // move({x:youX,y:youY});
@@ -193,7 +193,7 @@ let newFood =self.moveEntity(food,"DOWN");
 updateFood(newFood);
 }
     moveDown()
-    if(enemyAttack(0,32)){
+    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        if(self.props.armorPoints>=1){
          useArmor();
        }
@@ -203,11 +203,11 @@ updateFood(newFood);
      updateHealth();
    }
      }
-    if(pickupArmor(0,32)){
+    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
       getArmorPoints();
        updateHealth();
      }
-    if(pickupFood(0,32)){
+    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        getFoodPoints();
        updateHealth();
     }
@@ -221,7 +221,7 @@ if(keynum === RIGHT) {
   // let tempX=youX;
   //  youX=youX+32>BOARD_WIDTH?BOARD_WIDTH:youX+32;
   // youY=youY;
-  if(!checkBoundry(32,0)){
+  if(!checkBoundry(YOUR_INIT_POIN.x+32,YOUR_INIT_POIN.y)){
     // move({x:youX,y:youY});
     if(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH)){
       let newWall =self.moveEntity(walls,"RIGHT");
@@ -241,7 +241,7 @@ updateFood(newFood);
 }
 
     moveRight()
-    if(enemyAttack(0,0)){
+    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        if(self.props.armorPoints>=1){
          useArmor();
        }
@@ -251,11 +251,11 @@ updateFood(newFood);
      updateHealth();
    }
      }
-    if(pickupArmor(32,0)){
+    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
       getArmorPoints();
        updateHealth();
      }
-    if(pickupFood(32,0)){
+    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        getFoodPoints();
        updateHealth();
     }
@@ -272,7 +272,7 @@ if(keynum === LEFT) {
   // let tempX=youX;
   // youX=(youX-32)>0?youX-32:0;
   // youY=youY;
-  if(!checkBoundry(-32,0)){
+  if(!checkBoundry(YOUR_INIT_POIN.x-32,YOUR_INIT_POIN.y)){
     // move({x:youX,y:youY});
 
   if(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32){
@@ -292,7 +292,7 @@ let newFood =self.moveEntity(food,"LEFT");
 updateFood(newFood);
 }
     moveLeft();
-    if(enemyAttack(0,0)){
+    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        if(self.props.armorPoints>=1){
          useArmor();
        }
@@ -302,11 +302,11 @@ updateFood(newFood);
      updateHealth();
    }
      }
-    if(pickupArmor(-32,0)){
+    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
       getArmorPoints();
        updateHealth();
      }
-    if(pickupFood(-32,0)){
+    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
        getFoodPoints();
        updateHealth();
     }

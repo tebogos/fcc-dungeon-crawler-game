@@ -1,8 +1,9 @@
-export const BOARD_WIDTH=512;
-export const BOARD_HEIGHT=512;
+export const BOARD_WIDTH=1024;
+export const BOARD_HEIGHT=1024;
 
+// The cernter of the board, your position
 export const YOUR_INIT_POIN={
-  x:0,y:0
+  x:224,y:128
 };
 
 
@@ -62,7 +63,7 @@ const lineWall10=(startx,starty)=>{
 }
 let tempWall1=[...lWall(0,0),...tWall(160,160)];
 let tempWall2=[...tempWall1,...xWall(64,64)];
-const wallArrs=[...tempWall2,...lineWall(320,96,10),...boxWall(384,224),...lineWall(480,288,4)];
+const wallArrs=[...tempWall2,...lineWall(320,96,10),...boxWall(384,768),...lineWall(640,288,4),...lineWall(0,448,10),...boxWall(512,224),...boxWall(224,512)];
 export const WALL_INIT_POIN=wallArrs;
 console.log("wall init point--->");
 console.log(WALL_INIT_POIN);
