@@ -104,7 +104,7 @@ const pickupFood=compose(makeBool,pickFood,getFoodIndex,concatXY)
   const updateEnemy=self.props.updateEnemy;
   const updateFood=self.props.updateFood;
 
-
+//  This is the fuctiona refactoring branch
   const UP = 38;
 const DOWN = 40;
 const LEFT = 37;
