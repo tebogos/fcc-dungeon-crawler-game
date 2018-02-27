@@ -4,6 +4,9 @@ import {moveYourPosition,moveEnemyPosition,pickArmor,pickFood,moveUp,moveDown,mo
 import {updateHealth,damageByEnemy,getArmorPoints,getFoodPoints,getWeapon,useArmor} from '../reducers/score';
 import './Board.scss';
 import {BOARD_WIDTH,BOARD_HEIGHT,YOUR_INIT_POIN} from '../reducers/init';
+import Task from 'data.task';
+import Either from 'data.either';
+const {compose,curry}=require('ramda');
 
 class Board extends Component {
 
@@ -30,49 +33,43 @@ componentDidMount() {
    let exy=ex.toString()+"_"+ey.toString();
    return exy;
  }
-const checkBoundry=(x,y)=>{
-  let xy=x.toString()+"_"+y.toString();
-  let test=this.props.walls.indexOf(xy);
-  if(test<0){
-    return false;
-  }
-  else{
-    return true;
-  }
-}
-const enemyAttack=(x,y)=>{
-  let xy=x.toString()+"_"+y.toString();
-  let test=this.props.enemies.indexOf(xy);
-  if(test<0){
-    return false;
-  }
-  else{
-    return true;
-  }
-}
-const pickupArmor=(x,y)=>{
-  let xy=x.toString()+"_"+y.toString();
-  let index=this.props.armor.indexOf(xy);
-  if(index<0){
-    return false;
-  }
-  else{
-    this.props.pickArmor(index);
-    return true;
-  }
-}
 
-const pickupFood=(x,y)=>{
-  let xy=x.toString()+"_"+y.toString();
-  let index=this.props.food.indexOf(xy);
-  if(index<0){
-    return false;
-  }
-  else{
-    this.props.pickFood(index);
-    return true;
-  }
-}
+ const concatXY=curry((x,y)=>x.toString()+"_"+y.toString()); 
+const checkXYBoundry=(xy)=> this.props.walls.indexOf(xy) <0?false:true;
+const checkenemyAttack=(xy)=> this.props.enemies.indexOf(xy) <0?false:true;  
+const geteAmorIndex=(xy)=>this.props.armor.indexOf(xy);
+const getFoodIndex=(xy)=>this.props.food.indexOf(xy);
+
+const checkBoundry=compose(checkXYBoundry,concatXY);
+
+const enemyAttack=compose(checkenemyAttack,concatXY);
+const pickArmor=index=>index<0?false:this.props.pickArmor(index);
+const makeBool=(val)=>val===false?false:true;
+const pickupArmor=compose(makeBool,pickArmor,geteAmorIndex,concatXY);
+// (x,y)=>{
+//   let xy=x.toString()+"_"+y.toString();
+//   let index=this.props.armor.indexOf(xy);
+//   if(index<0){
+//     return false;
+//   }
+//   else{
+//     this.props.pickArmor(index);
+//     return true;
+//   }
+// }
+const pickFood=index=>index<0?false:this.props.pickFood(index);
+const pickupFood=compose(makeBool,pickFood,getFoodIndex,concatXY)
+// (x,y)=>{
+//   let xy=x.toString()+"_"+y.toString();
+//   let index=this.props.food.indexOf(xy);
+//   if(index<0){
+//     return false;
+//   }
+//   else{
+//     this.props.pickFood(index);
+//     return true;
+//   }
+// }
 
 
 
@@ -134,8 +131,8 @@ if(keynum === UP) {
         updateEnemy(newEnemy);
         }
     if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
-          let newEnemy =self.moveEntity(food,"UP");
-          updateFood(newEnemy);
+          let newFood =self.moveEntity(food,"UP");
+          updateFood(newFood);
           }
 
 
