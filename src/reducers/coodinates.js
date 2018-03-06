@@ -55,7 +55,12 @@ const moveRightAction=(state)=>{
 
  return  Object.assign({},state,{left:(state.left<=(-1*BOARD_WIDTH)?-1*BOARD_WIDTH:state.left-32)});
 }
+const pickFoodAction=(state,action)=>{
 
+  const newSate=Object.assign({},state,{food:[...state.food.slice(0,action.id),...state.food.slice(action.id+1)]});
+  return newSate;
+  
+}
 const nothing=()=>{return };
 const initialState={
   you:YOUR_INIT_POIN,
@@ -92,7 +97,7 @@ switch (action.type) {
   case PICK_ARMOR:
        return Object.assign({},state,{armor:[...state.armor.slice(0,action.id),...state.armor.slice(action.id+1)]});
   case PICK_FOOD:
-            return Object.assign({},state,{food:[...state.food.slice(0,action.id),...state.food.slice(action.id+1)]});
+            return  pickFoodAction(state,action);
   case UPDATE_WALL:
           return Object.assign({},state,{walls:action.payload});
   case UPDATE_ARMOR:

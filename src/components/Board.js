@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import {moveYourPosition,moveEnemyPosition,pickArmor,pickFood,moveUp,moveDown,moveLeft,moveRight,updateWalls,updateArmor,updateEnemy,updateFood} from '../reducers/coodinates';
 import {updateHealth,damageByEnemy,getArmorPoints,getFoodPoints,getWeapon,useArmor} from '../reducers/score';
+import {moveEntity,xySplit,peak,concatXY} from './board_utils';
 import './Board.scss';
 import {BOARD_WIDTH,BOARD_HEIGHT,YOUR_INIT_POIN} from '../reducers/init';
 import Task from 'data.task';
 import Either from 'data.either';
-const {compose,curry}=require('ramda');
+const {compose,curry,map,chain}=require('ramda');
+// const {Either} =require('data.either');
 
 class Board extends Component {
 
@@ -18,58 +20,7 @@ componentDidMount() {
    if(window.event) { return e.keyCode; }  // IE
    else if(e.which) { return e.which; }    // Netscape/Firefox/Opera
  }
- const getExy=(enemy,direction)=> {
-     let ex=parseInt(this.xySplit(enemy).x);
-     let ey=parseInt(this.xySplit(enemy).y);
-     if(direction==="UP")
-        ey=parseInt(this.xySplit(enemy).y)-32;
-     else if(direction==="DOWN")
-        ey=parseInt(this.xySplit(enemy).y)+32;
-     else if(direction==="LEFT")
-          ex=parseInt(this.xySplit(enemy).x)-32;
-     else if(direction==="RIGHT")
-          ex=parseInt(this.xySplit(enemy).x)+32;
-
-   let exy=ex.toString()+"_"+ey.toString();
-   return exy;
- }
-
- const concatXY=curry((x,y)=>x.toString()+"_"+y.toString()); 
-const checkXYBoundry=(xy)=> this.props.walls.indexOf(xy) <0?false:true;
-const checkenemyAttack=(xy)=> this.props.enemies.indexOf(xy) <0?false:true;  
-const geteAmorIndex=(xy)=>this.props.armor.indexOf(xy);
-const getFoodIndex=(xy)=>this.props.food.indexOf(xy);
-
-const checkBoundry=compose(checkXYBoundry,concatXY);
-
-const enemyAttack=compose(checkenemyAttack,concatXY);
-const pickArmor=index=>index<0?false:this.props.pickArmor(index);
-const makeBool=(val)=>val===false?false:true;
-const pickupArmor=compose(makeBool,pickArmor,geteAmorIndex,concatXY);
-// (x,y)=>{
-//   let xy=x.toString()+"_"+y.toString();
-//   let index=this.props.armor.indexOf(xy);
-//   if(index<0){
-//     return false;
-//   }
-//   else{
-//     this.props.pickArmor(index);
-//     return true;
-//   }
-// }
-const pickFood=index=>index<0?false:this.props.pickFood(index);
-const pickupFood=compose(makeBool,pickFood,getFoodIndex,concatXY)
-// (x,y)=>{
-//   let xy=x.toString()+"_"+y.toString();
-//   let index=this.props.food.indexOf(xy);
-//   if(index<0){
-//     return false;
-//   }
-//   else{
-//     this.props.pickFood(index);
-//     return true;
-//   }
-// }
+ 
 
 
 
@@ -77,24 +28,6 @@ const pickupFood=compose(makeBool,pickFood,getFoodIndex,concatXY)
  const self=this;
   document.addEventListener("keydown", function(event) {
   console.log(event.which);
-  let youX= self.props.you.x;
-  let youY=self.props.you.y;
-  let enemies= self.props.enemies;
-  let armor =self.props.armor;
-  let armorPoints =self.props.armorPoints;
-  let food = self.props.food;
-  let left = self.props.left;
-  let top = self.props.top;
-  const walls= self.props.walls;
-  const dinamicWall= self.props.dinamicWall;
-  const moveEnemies=self.props.moveEnemyPosition;
-  const move=self.props.moveYourPosition;
-  const damageByEnemy=self.props.damageByEnemy;
-  const getArmorPoints=self.props.getArmorPoints;
-  const useArmor=self.props.useArmor;
-  const getFoodPoints=self.props.getFoodPoints;
-  const getWeapon=self.props.getWeapon;
-  const updateHealth=self.props.updateHealth;
   const moveUp=self.props.moveUp;
   const moveDown=self.props.moveDown;
   const moveLeft=self.props.moveLeft;
@@ -111,306 +44,197 @@ const LEFT = 37;
 const RIGHT=39;
 var keynum = getKey(event);
 
-if(keynum === UP) {
-  //  youX=youX;
-  //  let tempY=youY;
-  //  youY=(youY-32)>0?youY-32:0;
 
-   if(!checkBoundry(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y-32)){
-      // move({x:youX,y:youY});
-  if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
-       let newWall =self.moveEntity(walls,"UP");
-      updateWalls(newWall);
-    }
-    if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
-         let newArmor =self.moveEntity(armor,"UP");
-        updateArmor(newArmor);
+
+
+
+
+
+
+
+// const checkXYBoundry=(xy)=> this.props.walls.indexOf(xy) <0?Either.Left(null):Either.Right(xy);
+const checkenemyAttack=(xy)=> self.props.enemies.indexOf(xy) <0?Either.Left(null):Either.Right(true);  
+const getAmorIndex=(xy)=>self.props.armor.indexOf(xy);
+const getFoodIndex=(xy)=>self.props.food.indexOf(xy);
+const enemyAttack=compose(checkenemyAttack,concatXY);
+
+const checkBoundry=curry((xy)=> self.props.walls.indexOf(xy) <0?Either.Right(xy):Either.Left(null));
+
+
+
+
+const updateHealth=bool=>{
+  if(bool){
+    self.props.updateHealth();
+    return Either.Right(true)
+  }
+    else 
+      return Either.Left(null)
+    };
+    const damageByEnemy=bool=>{
+      if(bool){
+        self.props.damageByEnemy();
+        return Either.Right(true)
       }
-      if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
-        let newEnemy =self.moveEntity(enemies,"UP");
-        updateEnemy(newEnemy);
-        }
-    if(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32){
-          let newFood =self.moveEntity(food,"UP");
-          updateFood(newFood);
-          }
+        else 
+          return Either.Left(null)
+        };
+const getArmorPoints=bool=>{
+  if(bool){
+    self.props.getArmorPoints();
+    return Either.Right(true);
+  }
+  esle 
+    return Either.Left(null);
+}
 
-
-
-      moveUp();
-      if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-         if(self.props.armorPoints>=1){
-           useArmor();
-         }
-         else
-         {
-       damageByEnemy();
-       updateHealth();
-     }
-       }
-      if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-        getArmorPoints();
-         updateHealth();
-       }
-      if(pickupFood(YOUR_INIT_POIN,YOUR_INIT_POIN.y)){
-         getFoodPoints();
-         updateHealth();
+const  pickArmor=(index)=>{
+  if(index>0){
+    self.props.pickArmor(index);
+    return Either.Right(true);
+  }
+  else
+    return Either.Left(null);
+};
+const pickFood=index=>{
+  if(index<0)
+    return Either.Left(null);
+  else {
+  
+    self.props.pickFood(index);
+    return Either.Right(true);
+  }
+  };
+  
+  
+  const getFoodPoints=bool=>{
+    if(bool)
+     {
+      self.props.getFoodPoints();
+        return Either.Right(true)
       }
-  // let arr=enemies.map(enemy=>getExy(enemy,"UP"));
-  //  moveEnemies(arr);
+    else 
+      return 
+      Either.Left(null)};
+
+
+
+const xyUp=concatXY(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y-32);
+const keyUp=(direction,code)=>direction===code?Either.Right(xyUp):Either.Left(null);
+const xyDown=concatXY( YOUR_INIT_POIN.x,YOUR_INIT_POIN.y+32);
+const keyDown=(direction,code)=>direction===code?Either.Right(xyDown):Either.Left(null);
+const xyLeft=concatXY( YOUR_INIT_POIN.x-32,YOUR_INIT_POIN.y);
+const keyLeft=(direction,code)=>direction===code?Either.Right(xyLeft):Either.Left(null);
+const xyRight=concatXY( YOUR_INIT_POIN.x+32,YOUR_INIT_POIN.y);
+const keyRight=(direction,code)=>{
+ 
+  
+  return direction===code?Either.Right(xyRight):Either.Left(null)};
+
+const checkDirectionToValidate=(direction,code)=>{
+  if(code===38)
+    return validateUpMove(direction,code);
+    else if(code===40)
+    return validateDownMove(direction,code);
+    else if(code===37)
+    return validateLeftMove(direction,code);
+    else if(code===39)
+    return validateRightMove(direction,code);
 }
 
-}
-
-if(keynum === DOWN) {
-
-  // youX=youX;
-  // let tempY= youY;
-  // youY=youY+32>BOARD_HEIGHT?BOARD_HEIGHT:youY+32;
-
-
-  if(!checkBoundry(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y+32)){
-
-    // document.getElementById('game-board').style.top=document.getElementById('game-board').style.top-32;
-    // move({x:youX,y:youY});
-    if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-    let newWall =self.moveEntity(walls,"DOWN");
-    updateWalls(newWall);
+const checkIfCanupdateUp=(bd)=>bd&&(!((self.props.top)>=(BOARD_HEIGHT))&&self.props.top>(-1*BOARD_HEIGHT)-32)?Either.Right('UP')
+     :Either.Left(null);
+const checkIfCanupdateDown=(bd)=>bd&&(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT))?Either.Right('DOWN')
+     :Either.Left(null);
+const checkIfCanupdateLeft=(bd)=>bd&&(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32)?Either.Right('LEFT')
+     :Either.Left(null);
+const checkIfCanupdateRight=(bd)=>bd&&(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH))?Either.Right('RIGHT')
+     :Either.Left(null);
+const newEntety=curry((ent,dr)=>moveEntity(ent,dr));
+const newWall=newEntety(self.props.walls);
+const newArmor=newEntety(self.props.armor);
+const newEnemy=newEntety(self.props.enemies);
+const newFood=newEntety(self.props.food);
+const validateUpMove=compose(chain(checkIfCanupdateUp),chain(checkBoundry),keyUp);
+const validateDownMove=compose(chain(checkIfCanupdateDown),chain(checkBoundry),keyDown);
+const validateLeftMove=compose(chain(checkIfCanupdateLeft),chain(checkBoundry),keyLeft);
+const validateRightMove=compose(chain(checkIfCanupdateRight),chain(checkBoundry),keyRight)
+const doUpdateWalls=compose(map(updateWalls),map(newWall),checkDirectionToValidate);
+const doUpdateArmor=compose(map(updateArmor),map(newArmor),checkDirectionToValidate);
+const doUpdateEnemy=compose(map(updateEnemy),map(newEnemy),checkDirectionToValidate);
+const doUpdateFood=compose(map(updateFood),map(newFood),checkDirectionToValidate);
+const doMoveUp=compose(moveUp,map(checkBoundry),keyUp);
+const doMoveDown=compose(moveDown,map(checkBoundry),keyDown);
+const doMoveLeft=compose(moveLeft,map(checkBoundry),keyLeft);
+const doMoveRight=compose(moveRight,map(checkBoundry),keyRight);
+// const isEnemyAttecking=enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y);
+const hasArmor=attack=>{
+  if(attack&&self.props.armorPoints>=1)
+    return Either.Right('attacking-armor');
+  else  if(attack)
+    return Either.Right('attacking-no-armor');
+  else
+    return Either.Left(null);
+    };
+const useArmor=armor=>{
+  if(armor==="attacking-armor"){
+    self.props.useArmor();
+    return Either.Left(null);
   }
-  if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-  let newArmor =self.moveEntity(armor,"DOWN");
-  updateArmor(newArmor);
+  else if(armor==="attacking-no-armor")
+    return Either.Right(true);
 }
-if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-let newEnemy =self.moveEntity(enemies,"DOWN");
-updateEnemy(newEnemy);
-}
-if(!((self.props.top)>=(BOARD_HEIGHT+32))&&self.props.top>(-1*BOARD_HEIGHT)){
-let newFood =self.moveEntity(food,"DOWN");
-updateFood(newFood);
-}
-    moveDown()
-    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       if(self.props.armorPoints>=1){
-         useArmor();
-       }
-       else
-       {
-     damageByEnemy();
-     updateHealth();
-   }
-     }
-    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-      getArmorPoints();
-       updateHealth();
-     }
-    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       getFoodPoints();
-       updateHealth();
-    }
-// let arr=enemies.map(enemy=>getExy(enemy,"UP"));
-//  moveEnemies(arr);
-}
-}
+const doEnemyAttack=compose(chain(updateHealth),chain(damageByEnemy),chain(useArmor),chain(hasArmor),enemyAttack)
 
-if(keynum === RIGHT) {
 
-  // let tempX=youX;
-  //  youX=youX+32>BOARD_WIDTH?BOARD_WIDTH:youX+32;
-  // youY=youY;
-  if(!checkBoundry(YOUR_INIT_POIN.x+32,YOUR_INIT_POIN.y)){
-    // move({x:youX,y:youY});
-    if(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH)){
-      let newWall =self.moveEntity(walls,"RIGHT");
-    updateWalls(newWall);
-  }
-  if(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH)){
-    let newArmor =self.moveEntity(armor,"RIGHT");
-   updateArmor(newArmor);
-}
-  if(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH)){
-let newEnemy =self.moveEntity(enemies,"RIGHT");
-updateEnemy(newEnemy);
-}
-if(!((self.props.left)>=(BOARD_WIDTH+32))&&self.props.left>(-1*BOARD_WIDTH)){
-let newFood =self.moveEntity(food,"RIGHT");
-updateFood(newFood);
-}
+const pickupArmor=compose(chain(updateHealth),chain(getArmorPoints),pickArmor,getAmorIndex,concatXY);
+const pickupFood=compose(chain(updateHealth),chain(getFoodPoints),pickFood,getFoodIndex,concatXY)
+  const updateHealthAndArmor=compose(pickupArmor);
+  
+  const updateHealthAndFood=compose(pickupFood);
+  
+doUpdateWalls(keynum,UP);
+doUpdateArmor(keynum,UP);
+doUpdateEnemy(keynum,UP);
+doUpdateFood(keynum,UP);
+doUpdateWalls(keynum,DOWN);
+doUpdateArmor(keynum,DOWN);
+doUpdateEnemy(keynum,DOWN);
+doUpdateFood(keynum,DOWN);
+doUpdateWalls(keynum,LEFT);
+doUpdateArmor(keynum,LEFT);
+doUpdateEnemy(keynum,LEFT);
+doUpdateFood(keynum,LEFT);
+doUpdateWalls(keynum,RIGHT);
+doUpdateArmor(keynum,RIGHT);
+doUpdateEnemy(keynum,RIGHT);
+doUpdateFood(keynum,RIGHT);
+doMoveUp(keynum,UP);
+doMoveDown(keynum,DOWN);
+doMoveLeft(keynum,LEFT);
+doMoveRight(keynum,RIGHT);
+doEnemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y);
+updateHealthAndArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y);
+updateHealthAndFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y);
 
-    moveRight()
-    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       if(self.props.armorPoints>=1){
-         useArmor();
-       }
-       else
-       {
-     damageByEnemy();
-     updateHealth();
-   }
-     }
-    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-      getArmorPoints();
-       updateHealth();
-     }
-    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       getFoodPoints();
-       updateHealth();
-    }
-  // let arr=enemies.map(enemy=>getExy(enemy,"RIGHT"));
-  // moveEnemies(arr);
-}
-else{
-  // youX=tempX;
-  // move({x:youX,y:youY});
-}
-}
-if(keynum === LEFT) {
-
-  // let tempX=youX;
-  // youX=(youX-32)>0?youX-32:0;
-  // youY=youY;
-  if(!checkBoundry(YOUR_INIT_POIN.x-32,YOUR_INIT_POIN.y)){
-    // move({x:youX,y:youY});
-
-  if(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32){
-     let newWall =self.moveEntity(walls,"LEFT");
-    updateWalls(newWall);
-  }
-  if(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32){
-    let newArmor =self.moveEntity(armor,"LEFT");
-   updateArmor(newArmor);
-  }
-  if(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32){
-let newEnemy =self.moveEntity(enemies,"LEFT");
-updateEnemy(newEnemy);
-}
-if(!((self.props.left)>=(BOARD_WIDTH))&&self.props.left>(-1*BOARD_WIDTH)-32){
-let newFood =self.moveEntity(food,"LEFT");
-updateFood(newFood);
-}
-    moveLeft();
-    if(enemyAttack(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       if(self.props.armorPoints>=1){
-         useArmor();
-       }
-       else
-       {
-     damageByEnemy();
-     updateHealth();
-   }
-     }
-    if(pickupArmor(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-      getArmorPoints();
-       updateHealth();
-     }
-    if(pickupFood(YOUR_INIT_POIN.x,YOUR_INIT_POIN.y)){
-       getFoodPoints();
-       updateHealth();
-    }
-  // let arr=enemies.map(enemy=>getExy(enemy,"LEFT"));
-  // moveEnemies(arr);
-}
-else{
-  // youX=tempX;
-  // move({x:youX,y:youY});
-}
-}
 
 
 });
 }
 
- // move entity position
-moveEnemy(enemy,direction){
-  if(direction==="UP"){
-return  enemy.map(wall=>{
-const x=  this.xySplit(wall).x;
-const y= parseInt(this.xySplit(wall).y)+32;
-const xy=x.toString()+"_"+y.toString();
-return xy;
-});
-}
-else if(direction==="DOWN"){
-  return  enemy.map(wall=>{
-  const x=  this.xySplit(wall).x;
-  const y= parseInt(this.xySplit(wall).y)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="LEFT"){
-
-  return  enemy.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)+32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="RIGHT"){
-
-  return  enemy.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-}
+ 
 
 
-moveEntity(entity,direction){
-  if(direction==="UP"){
-return  entity.map(wall=>{
-const x=  this.xySplit(wall).x;
-const y= parseInt(this.xySplit(wall).y)+32;
-const xy=x.toString()+"_"+y.toString();
-return xy;
-});
-}
-else if(direction==="DOWN"){
-  return  entity.map(wall=>{
-  const x=  this.xySplit(wall).x;
-  const y= parseInt(this.xySplit(wall).y)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="LEFT"){
-
-  return  entity.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)+32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-else if(direction==="RIGHT"){
-
-  return  entity.map(wall=>{
-  const y=  this.xySplit(wall).y;
-  const x= parseInt(this.xySplit(wall).x)-32;
-  const xy=x.toString()+"_"+y.toString();
-  return xy;
-  });
-}
-}
-
-xySplit(xy){
-  let arr=xy.split("_");
-  const obj={x:arr[0],y:arr[1]};
-  return obj;
-}
   render() {
 
 const left =this.props.left;
 const top = this.props.top;
     return (
       <div id="game-board" className="game-board">
-        {this.props.food.map((fd,i)=><div key={fd} className="food" id={fd} style={{position: 'abosolute', left:parseInt(this.xySplit(fd).x), top: parseInt(this.xySplit(fd).y)}}></div>)}
-        {this.props.armor.map((arm,i)=><div key={arm} className="armor" id={arm} style={{position: 'abosolute', left: parseInt(this.xySplit(arm).x), top: parseInt(this.xySplit(arm).y)}}></div>)}
-      {this.props.enemies.map((enemy,i)=><div key={enemy} className="enemy" id={enemy} style={{position: 'abosolute', left: parseInt(this.xySplit(enemy).x), top: parseInt(this.xySplit(enemy).y)}}></div>)}
-      {this.props.walls.map((wall,i)=><div key={wall+i} className="wall" id={wall+i} style={{position: 'abosolute', left: parseInt(this.xySplit(wall).x), top: parseInt(this.xySplit(wall).y)}}></div>)}
+        {this.props.food.map((fd,i)=><div key={fd} className="food" id={fd} style={{position: 'abosolute', left:parseInt(xySplit(fd).x), top: parseInt(xySplit(fd).y)}}></div>)}
+        {this.props.armor.map((arm,i)=><div key={arm} className="armor" id={arm} style={{position: 'abosolute', left: parseInt(xySplit(arm).x), top: parseInt(xySplit(arm).y)}}></div>)}
+      {this.props.enemies.map((enemy,i)=><div key={enemy} className="enemy" id={enemy} style={{position: 'abosolute', left: parseInt(xySplit(enemy).x), top: parseInt(xySplit(enemy).y)}}></div>)}
+      {this.props.walls.map((wall,i)=><div key={wall+i} className="wall" id={wall+i} style={{position: 'abosolute', left: parseInt(xySplit(wall).x), top: parseInt(xySplit(wall).y)}}></div>)}
       <div id="you" style={{position: 'abosolute', left: this.props.you.x, top: this.props.you.y}}></div>
       <span >x  { left} </span> <span>y {top} </span>
       </div>
